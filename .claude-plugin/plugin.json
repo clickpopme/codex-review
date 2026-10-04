@@ -1,0 +1,15 @@
+{
+  "name": "codex-review",
+  "version": "1.0.0",
+  "description": "Run OpenAI Codex code reviews from Claude Code, with consent-gated fixes and optional Linear tickets.",
+  "author": {
+    "name": "clickpopme"
+  },
+  "homepage": "https://github.com/clickpopme/codex-review",
+  "repository": "https://github.com/clickpopme/codex-review",
+  "license": "MIT",
+  "keywords": ["codex", "code-review", "openai", "linear"],
+  "skills": [
+    "./"
+  ]
+}

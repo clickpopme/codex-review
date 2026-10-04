@@ -1,0 +1,28 @@
+{
+  "review": {
+    "model": null,
+    "preferred_backend": null,
+    "prompt_overrides": null,
+    "skip_files_larger_than_kb": 100
+  },
+  "auto_fix": {
+    "max_severity": "Medium",
+    "min_confidence": "clear",
+    "skip_paths": [
+      "node_modules/**", "dist/**", ".next/**", ".build/**",
+      "DerivedData/**", "*.xcodeproj/**", "*.xcworkspace/**",
+      "Pods/**", "vendor/**", ".claude/**",
+      "package-lock.json", "yarn.lock", "pnpm-lock.yaml"
+    ],
+    "require_typecheck_pass": false,
+    "require_lint_pass": false,
+    "require_test_pass": false
+  },
+  "skip_linear": true,
+  "linear": {
+    "team_key": null,
+    "project_id": null,
+    "labels": ["codex-review"],
+    "default_assignee_email": null
+  }
+}

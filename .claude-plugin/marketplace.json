@@ -1,0 +1,14 @@
+{
+  "name": "codex-review-marketplace",
+  "owner": {
+    "name": "clickpopme"
+  },
+  "description": "Run OpenAI Codex code reviews from Claude Code.",
+  "plugins": [
+    {
+      "name": "codex-review",
+      "source": "./",
+      "description": "Run OpenAI Codex code reviews from Claude Code, with consent-gated fixes and optional Linear tickets."
+    }
+  ]
+}

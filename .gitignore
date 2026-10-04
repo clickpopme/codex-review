@@ -1,0 +1,11 @@
+.DS_Store
+*.swp
+*.swo
+*.bak
+.verification/
+.venv/
+__pycache__/
+/.codex-review.json
+.codex-reviews/
+.env
+.env.*
