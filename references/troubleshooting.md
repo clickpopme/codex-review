@@ -12,7 +12,7 @@
 | Login failure | The user runs `codex login` (or `printenv OPENAI_API_KEY \| codex login --with-api-key`). Never ask for a key in chat. |
 | Model not found | A pinned model (`CODEX_REVIEW_MODEL` or `review.model`) is unavailable. Offer to rerun with the CLI default; do not guess another name. |
 | `cannot be used with '[PROMPT]'` | Scope flags and a prompt are exclusive. Use `prompt` mode without a scope flag, or a scope without a prompt. |
-| Bash tool timed out during the review | The run was interrupted; the run directory printed earlier has no `status.json`. Treat it as failed and rerun with `run_in_background: true` or `timeout: 600000`. |
+| Bash tool timed out during the review | Check the printed run directory and whether the process is still running; a tool timeout does not prove the child stopped. Missing `status.json` means incomplete, not clean. Wait for a live process; only retry after it stops, subject to the rerun guard, using background execution or a longer timeout. |
 | `final.txt` empty or `Reviewer failed to output a response.` | Failed review even if exit was 0. Show `stderr.txt`; do not report "no findings". |
 | `Refusing a symlink in the artifact path` | A component of the pending directory is a symlink (on macOS this includes `/tmp` and `$TMPDIR`). Use the default `~/.codex-reviews/pending` or pass another non-symlinked absolute directory. |
 | `Invalid .codex-review.json` | The config is not a JSON object or `review.model` is not a string/null. Fix the file; config is optional, so deleting it also works. |

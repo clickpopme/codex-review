@@ -3,18 +3,21 @@
 ## Codex CLI (`codex-review`) — the default
 
 Requires Codex CLI **0.153.4 or newer** (the version this package was built
-and tested against). The capture helper checks `codex --version` and that
+and mock-tested against; live fixture checks also passed on 0.153.4). The capture helper checks `codex --version` and that
 `codex exec review --help` lists the flags it needs; older or unparseable
 versions stop with a message rather than guessing.
 
-How the helper runs Codex (verified on 0.153.4):
+How the helper runs Codex (source-checked on 0.153.4; the four scope modes
+and an explicit model pin were also exercised on live fixtures):
 
 - `codex exec review` is the non-interactive review command. Scope flags
   `--uncommitted`, `--base <ref>` and `--commit <sha>` are mutually exclusive
   and none of them can be combined with a custom prompt (exit 2). A custom
   prompt is therefore its own mode (`prompt`), passed on stdin with `-`.
 - `-o RUN_DIR/final.txt` makes Codex write its final message to a file, so the
-  findings never have to be dug out of a transcript. `--ephemeral` stops Codex
+  findings never have to be dug out of a transcript. In live 0.153.4 runs,
+  stdout repeated this review with a trailing newline, and stderr included
+  the model banner, command transcript and review. `--ephemeral` stops Codex
   keeping its own session file for the run. `-c 'sandbox_mode="read-only"'`
   keeps any commands the reviewer runs (such as `git diff`) read-only.
 - A model is pinned only when `CODEX_REVIEW_MODEL` or `review.model` is set, via

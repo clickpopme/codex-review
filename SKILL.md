@@ -73,7 +73,9 @@ provider or model.
    silently.
 2. **Show the scope before running.** Print the reviewer, the model (the pin
    or "CLI default"), the scope, and the file list (`git status --porcelain`
-   for uncommitted; `git diff --name-only <base>...HEAD` for a base). Flag
+   for uncommitted; for a base, resolve `git merge-base HEAD <base>` and use
+   `git diff --name-only <merge-base>` plus `git status --porcelain` to show
+   working-tree and untracked changes too). Flag
    every untracked file and anything named like a secret (`.env*`, `*.pem`,
    `*.key`, `*.p12`, `*.npmrc`, `*.netrc`, `*credential*`, `*secret*`,
    `*token*`). If any such file is present, stop and ask whether to send it,
@@ -85,7 +87,11 @@ provider or model.
    (or the directory you pass as the helper's 4th argument). If one modified
    in the last ten minutes has the same `repo_key` and `commit_sha` in its
    `context.json` and the same `scope` in `status.json`, ask before paying for
-   another review; never claim an old run is equivalent for uncommitted scope.
+   another review unless the user already authorized that rerun. Also inspect
+   incomplete runs with no `status.json`; confirm the old process has stopped
+   before retrying. Ten minutes is a duplicate-cost warning window, not a
+   timeout or proof of equivalent inputs: base and uncommitted scopes can
+   change without HEAD changing, as can prompt file contents.
 4. **Run.** For Codex, call the capture helper in one Bash call with
    `run_in_background: true` (or `timeout: 600000`) — a review often takes
    longer than the Bash tool's default two minutes:
@@ -93,7 +99,8 @@ provider or model.
    (or `base <ref>`, `commit <sha>`, `prompt /abs/file.txt`). The helper prints
    the run directory **before** Codex starts; note it as `RUN_DIR`. When it
    exits, read `RUN_DIR/status.json`: `exit_code` 0 and a non-empty
-   `final.txt` is a completed review; anything else is a failed or incomplete
+   `final.txt` without the exact failure line from output.md is a completed
+   review; anything else is a failed or incomplete
    run — report it and stop (do not call it "no findings"). For other
    reviewers keep equivalent evidence (see backends.md).
 

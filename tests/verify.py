@@ -57,11 +57,20 @@ while [ $# -gt 0 ]; do
   if [ "$1" = -o ]; then out=$2; shift; fi
   shift
 done
-if [ -n "$out" ] && [ "${MOCK_EMPTY_FINAL:-0}" != 1 ]; then
-  printf '%s\\n' 'Full review comments:' '' '- [P2] Example finding — /tmp/example.js:3-4' '  Body.' > "$out"
+review='The patch contains a correctness bug.
+
+Review comment:
+
+- [P2] Correct the example calculation — /tmp/example.js:3-3
+  Body.'
+if [ "${MOCK_REVIEW_FAILURE:-0}" = 1 ]; then
+  review='Reviewer failed to output a response.'
 fi
-printf '%s\\n' 'final output'
-printf '%s\\n' 'diagnostic' >&2
+if [ -n "$out" ] && [ "${MOCK_EMPTY_FINAL:-0}" != 1 ]; then
+  printf '%s' "$review" > "$out"
+fi
+printf '%s\\n' "$review"
+printf '%s\\n' 'diagnostic' 'codex' "$review" >&2
 exit "${MOCK_STATUS:-0}"
 '''
 
@@ -145,9 +154,10 @@ with tempfile.TemporaryDirectory(prefix='verify-', dir=SCRATCH) as directory:
     first = Path(run(command, env=env).stdout.strip())
     second = Path(run(command, env=env).stdout.strip())
     assert first != second
-    assert (first / 'stdout.txt').read_text() == 'final output\n'
-    assert (first / 'stderr.txt').read_text() == 'diagnostic\n'
-    assert (first / 'final.txt').read_text().startswith('Full review comments:')
+    review = (first / 'final.txt').read_text()
+    assert (first / 'stdout.txt').read_text() == review + '\n'
+    assert (first / 'stderr.txt').read_text() == 'diagnostic\ncodex\n' + review + '\n'
+    assert '\n\nReview comment:\n\n- [P2]' in review
     assert (first.stat().st_mode & 0o777) == 0o700
     assert ((first / 'final.txt').stat().st_mode & 0o777) == 0o600
     status = json.loads((first / 'status.json').read_text())
@@ -167,6 +177,9 @@ with tempfile.TemporaryDirectory(prefix='verify-', dir=SCRATCH) as directory:
     assert json.loads((Path(failed.stdout.strip()) / 'status.json').read_text())['exit_code'] == 7
     empty = run(command, ok=False, env=dict(env, MOCK_EMPTY_FINAL='1'))
     assert empty.returncode == 1 and 'no final message' in empty.stderr
+    no_response = run(command, ok=False, env=dict(env, MOCK_REVIEW_FAILURE='1'))
+    assert no_response.returncode == 1 and 'no response' in no_response.stderr
+    assert json.loads((Path(no_response.stdout.strip()) / 'status.json').read_text())['exit_code'] == 1
     old = run(command, ok=False, env=dict(env, MOCK_VERSION='0.100.0'))
     assert old.returncode != 0 and '0.153.4' in old.stderr
     scoped = command.copy()

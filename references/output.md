@@ -11,10 +11,12 @@ directory. On completion it contains:
 | `context.json` | output of review-context.sh at run time |
 | `codex-version.txt` | `codex --version` |
 | `final.txt` | Codex's final message — the review itself |
-| `stdout.txt`, `stderr.txt` | everything else Codex printed (progress, diagnostics) |
+| `stdout.txt` | rendered review again, with a trailing newline (0.153.4) |
+| `stderr.txt` | model/session banner, progress, command output, diagnostics, and the review again |
 | `status.json` | `exit_code`, `scope`, `model`, `started_at`, `final` |
 
-A run is complete only when `exit_code` is 0 and `final.txt` is non-empty.
+A run is complete only when `exit_code` is 0 and `final.txt` is non-empty
+and does not contain the exact failure line described below.
 Anything else — non-zero exit, interruption (no `status.json`), auth or model
 errors in `stderr.txt` — is a failed run: say so, keep the files, do not
 propose fixes or tickets. Informational lines on stderr with exit 0 are not a
@@ -22,6 +24,9 @@ failure.
 
 ## Format of final.txt (Codex 0.153.4)
 
+Live fixture reviews on 0.153.4 produced the following structure (including
+prompt mode). Text and priorities are model-generated, not fixed wording.
+`final.txt` had no trailing newline; stdout repeated it with one added.
 Codex renders its structured review as plain text:
 
 ```text
@@ -49,7 +54,10 @@ Rules:
   the path to null and keep the finding manual.
 - Body lines are indented two spaces; keep the whole body.
 - No `Full review comments:`/`Review comment:` block and an explanation such as
-  "patch is correct" means a clean review with no findings.
+  "patch is correct" means a clean review with no findings. On a clean tree,
+  `--uncommitted` returned exit 0 and only: "The working tree is clean: there
+  are no staged, unstaged, or untracked changes to review." This confirms an
+  empty scope, not the correctness of already committed code.
 - The exact line `Reviewer failed to output a response.` means the review
   failed even though the exit code was 0.
 - Open each cited location and check that the finding describes the current

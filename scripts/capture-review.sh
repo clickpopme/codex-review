@@ -105,6 +105,10 @@ if [ "$status" -eq 0 ] && [ ! -s "$run/final.txt" ]; then
   printf '%s\n' 'Codex exited 0 but wrote no final message; treating the run as failed.' >&2
   status=1
 fi
+if [ "$status" -eq 0 ] && grep -Fxq 'Reviewer failed to output a response.' "$run/final.txt"; then
+  printf '%s\n' 'Codex reported that the reviewer produced no response; treating the run as failed.' >&2
+  status=1
+fi
 chmod 600 "$run"/* 2>/dev/null || true
 jq -n --argjson exit_code "$status" --arg mode "$mode" --arg value "$value" \
   --arg model "$model" --arg started "$started" \
